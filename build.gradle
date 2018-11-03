@@ -1,49 +1,6 @@
-import java.util.regex.Matcher
-
 plugins {
     id 'application'
+    id "org.javamodularity.moduleplugin" version "1.1.1"
 }
 
-ext.moduleName = 'testModule'
 mainClassName = "$moduleName/testPackage.Main"
-
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath
-        ]
-        classpath = files()
-    }
-}
-
-run {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        jvmArgs = [
-                '--module-path', classpath.asPath,
-                '--module', mainClassName
-        ]
-        classpath = files()
-    }
-}
-
-startScripts {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        classpath = files()
-        defaultJvmOpts = [
-                '--module-path', 'APP_HOME_LIBS',
-                '--module', mainClassName
-        ]
-    }
-    doLast {
-        def bashFile = new File(outputDir, applicationName)
-        String bashContent = bashFile.text
-        bashFile.text = bashContent.replaceFirst('APP_HOME_LIBS', Matcher.quoteReplacement('$APP_HOME/lib'))
-
-        def batFile = new File(outputDir, applicationName + ".bat")
-        String batContent = batFile.text
-        batFile.text = batContent.replaceFirst('APP_HOME_LIBS', Matcher.quoteReplacement('%APP_HOME%\\lib'))
-    }
-}
